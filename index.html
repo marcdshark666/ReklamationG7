@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="sv">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reklamation G7</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Dexcom G7 till Rubin Medical</p>
+          <h1>Reklamationsflode som sparar defaults och bygger ratt underlag</h1>
+          <p class="hero-text">
+            Fyll i standarduppgifter en gang, lagg in arendespecifika rader och
+            exportera ett fardigt JSON-underlag for submit eller arkivering.
+          </p>
+        </div>
+        <div class="hero-card">
+          <p class="hero-card-label">Status</p>
+          <p id="statusMessage" class="hero-card-text">
+            Klar att fylla i ett nytt G7-arende.
+          </p>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>Standarduppgifter</h2>
+            <p>Sparas lokalt i webblasaren for nasta arende.</p>
+          </div>
+
+          <div class="form-grid">
+            <label>
+              Pumpanvandarens namn
+              <input id="default_name" type="text" />
+            </label>
+            <label>
+              Eventuell malsman
+              <input id="default_guardian" type="text" />
+            </label>
+            <label>
+              E-post
+              <input id="default_email" type="email" />
+            </label>
+            <label>
+              Mobilnummer
+              <input id="default_phone" type="text" />
+            </label>
+            <label>
+              Adress
+              <input id="default_address" type="text" />
+            </label>
+            <label>
+              Postnummer
+              <input id="default_zipcode" type="text" />
+            </label>
+            <label>
+              Stad
+              <input id="default_city" type="text" />
+            </label>
+            <label>
+              Serienummer Tandem insulinpump
+              <input id="default_serialno" type="text" />
+            </label>
+            <label>
+              Klinik
+              <input id="default_clinic" type="text" />
+            </label>
+            <label>
+              Produkt
+              <select id="default_product">
+                <option value="Dexcom G7 Sensor">Dexcom G7 Sensor</option>
+                <option value="Dexcom G6 Sensor">Dexcom G6 Sensor</option>
+              </select>
+            </label>
+            <label>
+              Spritsudd
+              <select id="default_clean_insertion">
+                <option value="Ja">Ja</option>
+                <option value="Nej">Nej</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="actions">
+            <button id="saveDefaultsBtn" type="button">Spara defaults</button>
+            <button id="resetDefaultsBtn" type="button" class="secondary">
+              Rensa defaults
+            </button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>G7-arende</h2>
+            <p>Fyll i de rader som brukar andras fran reklamation till reklamation.</p>
+          </div>
+
+          <div class="form-grid">
+            <label>
+              Forfragan
+              <input id="case_service" type="text" value="Reklamation" readonly />
+            </label>
+            <label>
+              Sensorns LOT nummer
+              <input id="case_lot_number" type="text" />
+            </label>
+            <label>
+              Utgangsdatum sensor
+              <input id="case_end_date" type="date" />
+            </label>
+            <label>
+              Datum da sensorn felade
+              <input id="case_error_date" type="date" />
+            </label>
+            <label>
+              Dagar kvar nar sensorn felade
+              <input id="case_days_remaining" type="number" min="0" max="10" />
+            </label>
+            <label>
+              Insattningsdatum
+              <input id="case_insert_date" type="date" />
+            </label>
+            <label class="span-2">
+              Placering
+              <input id="case_placement" type="text" placeholder="t.ex. Buken bredvid naveln" />
+            </label>
+            <label class="span-2">
+              Vilket fel upplevde ni med G7 sensorn?
+              <select id="case_issue">
+                <option value="Sensorn fastnade i applikatorn (G7)">
+                  Sensorn fastnade i applikatorn (G7)
+                </option>
+                <option value="Sensorhaftan lossnade i fortid fran huden (G7)">
+                  Sensorhaftan lossnade i fortid fran huden (G7)
+                </option>
+                <option value="Sensorn slutade visa varden (G7)" selected>
+                  Sensorn slutade visa varden (G7)
+                </option>
+                <option value="Sensorfel 11 (G7)">Sensorfel 11 (G7)</option>
+                <option value="Sensorn visade felaktiga glukosvarden (G7)">
+                  Sensorn visade felaktiga glukosvarden (G7)
+                </option>
+                <option value="Det gick inte att parkoppla sensorn (G7)">
+                  Det gick inte att parkoppla sensorn (G7)
+                </option>
+                <option value="Annat fel">Annat fel</option>
+              </select>
+            </label>
+            <label class="span-2">
+              Vilket felmeddelande fick ni i Tandem insulinpump?
+              <input id="case_error_message" type="text" placeholder="t.ex. 48 CGM unavailable alert" />
+            </label>
+            <label class="span-2">
+              Under hur lang tid saknades sensorvarden innan ni tog bort sensorn?
+              <input
+                id="case_missing_values"
+                type="text"
+                placeholder="t.ex. Mer an 24 timmar i strack"
+              />
+            </label>
+          </div>
+
+          <div class="actions">
+            <button id="calculateInsertDateBtn" type="button">Rakna ut insattningsdatum</button>
+            <button id="loadMarcExampleBtn" type="button" class="secondary">
+              Ladda Marc-exempel
+            </button>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-heading">
+            <h2>Bilder och underlag</h2>
+            <p>Valfritt. Bilder sparas i exportfilen som data-URL for snabb referens.</p>
+          </div>
+
+          <label class="uploader">
+            <span>Lagg till bilder</span>
+            <input id="imageInput" type="file" accept="image/*" multiple />
+          </label>
+
+          <div id="imagePreview" class="image-grid"></div>
+        </section>
+
+        <section class="panel preview-panel">
+          <div class="panel-heading">
+            <h2>Rubin-preview</h2>
+            <p>Det har ar ordningen och innehallet som webbappen bygger infor submit/export.</p>
+          </div>
+
+          <div id="previewList" class="preview-list"></div>
+
+          <div class="actions">
+            <button id="copySummaryBtn" type="button">Kopiera sammanfattning</button>
+            <button id="downloadJsonBtn" type="button" class="secondary">
+              Exportera JSON
+            </button>
+            <label class="import-button">
+              <span>Importera JSON</span>
+              <input id="importJsonInput" type="file" accept="application/json" />
+            </label>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <template id="previewItemTemplate">
+      <div class="preview-item">
+        <div class="preview-label"></div>
+        <div class="preview-value"></div>
+      </div>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
