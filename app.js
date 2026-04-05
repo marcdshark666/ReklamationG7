@@ -289,6 +289,8 @@ function loadDraft() {
     lastOcrText = payload.ocrText || "";
     uploadedImages = payload.images || [];
     uploadedDocuments = payload.documents || [];
+    applyValues(builtInDefaults);
+    applyValues(builtInCaseDefaults);
     renderUploads();
   } catch (error) {
     console.error(error);
@@ -528,6 +530,16 @@ function extractAllMachineDates(text) {
   return [...new Set(matches)].sort();
 }
 
+function cleanTrailingKeywords(value) {
+  if (!value) {
+    return "";
+  }
+
+  return value
+    .replace(/\b(?:utg[aå]ngsdatum|tillverkningsdatum|felkod|placement|placering|lot|sensorn felade)\b.*$/i, "")
+    .trim();
+}
+
 function inferManufactureDate(text, chosenEndDate) {
   const labelledManufacture = extractFirst(
     text,
@@ -552,10 +564,7 @@ function inferManufactureDate(text, chosenEndDate) {
 }
 
 function inferLotFromOcr(text) {
-  const labelledLot = extractFirst(
-    text,
-    /\bLOT\b(?:\s*(?:nr|nummer|no))?\s*[:#\-]?\s*([A-Z0-9 ]{6,20})/i,
-  );
+  const labelledLot = extractFirst(text, /\bLOT\b(?:\s*(?:nr|nummer|no))?\s*[:#\-]?\s*([A-Z0-9]{6,14})\b/i);
   if (labelledLot) {
     return labelledLot.replace(/\s{2,}/g, " ").trim();
   }
@@ -572,34 +581,8 @@ function fillFromText(text) {
   const notes = [];
   const foundValues = {};
 
-  const emailMatch = text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi);
-  if (emailMatch?.[0]) {
-    foundValues.default_email = emailMatch[0];
-  }
-
-  const phoneMatch = text.match(/(?:\+46|0)[0-9][0-9\s-]{7,}/);
-  if (phoneMatch?.[0]) {
-    foundValues.default_phone = phoneMatch[0].replace(/\s+/g, "");
-  }
-
-  const defaultsMap = [
-    ["default_name", /pumpanv[a\u00e4]ndarens namn\s*[:\-]?\s*([^\n]+)/i],
-    ["default_guardian", /m[a\u00e5]lsman\s*[:\-]?\s*([^\n]+)/i],
-    ["default_address", /adress\s*[:\-]?\s*([^\n]+)/i],
-    ["default_zipcode", /postnummer\s*[:\-]?\s*(\d{5})/i],
-    ["default_city", /stad\s*[:\-]?\s*([^\n]+)/i],
-    ["default_serialno", /serienummer(?:.*?pump)?\s*[:#\-]?\s*([0-9 ]{5,})/i],
-    ["default_clinic", /klinik\s*[:\-]?\s*([^\n]+)/i],
-  ];
-
-  defaultsMap.forEach(([fieldId, regex]) => {
-    const value = extractFirst(text, regex);
-    if (value) {
-      foundValues[fieldId] = value.replace(/\s{2,}/g, " ").trim();
-    }
-  });
-
-  const lotValue = extractFirst(text, /lot(?:\s*nr|\s*nummer)?\s*[:\-]?\s*([A-Z0-9 ]{6,})/i) || inferLotFromOcr(text);
+  const lotValue =
+    extractFirst(text, /lot(?:\s*nr|\s*nummer)?\s*[:\-]?\s*([A-Z0-9]{6,14})/i) || inferLotFromOcr(text);
   if (lotValue) {
     foundValues.case_lot_number = lotValue.replace(/\s{2,}/g, " ").trim();
   }
@@ -618,10 +601,15 @@ function fillFromText(text) {
     foundValues.case_manufacture_date = manufactureDate;
   }
 
-  const errorDateRaw = extractFirst(
-    text,
-    /(?:datum d[a\u00e5] sensorn felade|datum d[a\u00e5] du fick sensorfel|feldatum|sensorn felade)\s*[:\-]?\s*([0-9\/\-. ]{6,20}|[0-9]{1,2}\s+[a-z\u00e5\u00e4\u00f6]+\s+[0-9]{4})/i,
-  );
+  const directErrorDate =
+    extractFirst(text, /(?:datum d[a\u00e5] sensorn felade|datum d[a\u00e5] du fick sensorfel|feldatum|sensorn felade)\s*[:\-]?\s*(20\d{2}[-/.]\d{2}[-/.]\d{2})/i) ||
+    extractFirst(text, /\bfelet uppstod\s*[:\-]?\s*(20\d{2}[-/.]\d{2}[-/.]\d{2})/i);
+  const errorDateRaw =
+    directErrorDate ||
+    extractFirst(
+      text,
+      /(?:datum d[a\u00e5] sensorn felade|datum d[a\u00e5] du fick sensorfel|feldatum)\s*[:\-]?\s*([0-9\/\-. ]{6,20}|[0-9]{1,2}\s+[a-z\u00e5\u00e4\u00f6]+\s+[0-9]{4})/i,
+    );
   const parsedErrorDate = parseDateCandidate(errorDateRaw);
   if (parsedErrorDate) {
     foundValues.case_error_date = parsedErrorDate;
@@ -641,7 +629,12 @@ function fillFromText(text) {
     foundValues.case_days_remaining = daysRemaining;
   }
 
-  const placement = extractFirst(text, /(?:placering|var p[a\u00e5] kroppen|satt p[a\u00e5])\s*[:\-]?\s*([^\n]+)/i);
+  const placement = cleanTrailingKeywords(
+    extractFirst(
+      text,
+      /(?:placering|var p[a\u00e5] kroppen|satt p[a\u00e5])\s*[:\-]?\s*([^\n]+?)(?=\b(?:felkod|lot|utg[a\u00e5]ngsdatum|tillverkningsdatum|sensorn felade)\b|$)/i,
+    ),
+  );
   if (placement) {
     foundValues.case_placement = placement;
   } else if (/buken bredvid naveln/i.test(text)) {
@@ -677,6 +670,9 @@ function fillFromText(text) {
     setFieldValue(id, value);
     notes.push({ label: fieldLabels[id] || id, value: id === "case_issue" ? getIssueLabel(value) : value });
   });
+
+  applyValues(builtInDefaults);
+  applyValues(builtInCaseDefaults);
 
   if (!foundValues.case_insert_date && $("case_error_date").value && $("case_days_remaining").value) {
     calculateInsertDate();
