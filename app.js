@@ -1002,7 +1002,18 @@ async function submitToRubin(options = {}) {
       throw new Error(result.message || "Skick misslyckades.");
     }
 
-    setStatus(`\u00c4rendet skickades till Rubin. HTTP-status: ${result.httpStatus}`);
+    const automationLabel =
+      result.automation === "python-rpa"
+        ? "lokal Python-robot"
+        : result.automation === "powershell-direct-submit"
+          ? "direkt-submit"
+          : "automatiken";
+
+    setStatus(
+      result.httpStatus
+        ? `\u00c4rendet skickades till Rubin via ${automationLabel}. HTTP-status: ${result.httpStatus}`
+        : `\u00c4rendet skickades till Rubin via ${automationLabel}.`,
+    );
   } catch (error) {
     console.error(error);
     setStatus(

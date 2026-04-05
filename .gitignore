@@ -1,2 +1,7 @@
 scripts/.session/
 *.log
+.tmp/
+.venv/
+*.bak.*
+index.test.html
+__pycache__/

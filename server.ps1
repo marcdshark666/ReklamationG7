@@ -38,6 +38,7 @@ function Write-FileResponse {
 
 $root = $PSScriptRoot
 $submitScript = Join-Path $root "scripts\submit-rubin.ps1"
+$rpaScript = Join-Path $root "scripts\run-rubin-rpa.ps1"
 $listener = [System.Net.HttpListener]::new()
 $listener.Prefixes.Add("http://localhost:$Port/")
 $listener.Start()
@@ -77,6 +78,7 @@ try {
             ok = $true
             port = $Port
             submitScript = (Test-Path $submitScript)
+            pythonRpa = (Test-Path $rpaScript)
           }
           continue
         }
@@ -95,8 +97,38 @@ try {
           $caseFile = Join-Path $tempDir "case-export.json"
           Set-Content -LiteralPath $caseFile -Value $body -Encoding UTF8
 
-          $resultJson = & powershell -ExecutionPolicy Bypass -File $submitScript -CaseFile $caseFile -AsJson
-          $result = $resultJson | ConvertFrom-Json
+          $result = $null
+          $rpaRaw = $null
+          $rpaError = $null
+
+          if (Test-Path $rpaScript) {
+            try {
+              $rpaRaw = & powershell -ExecutionPolicy Bypass -File $rpaScript -CaseFile $caseFile -Submit -Headless
+              if ($rpaRaw) {
+                $result = $rpaRaw | ConvertFrom-Json
+                if ($result.success -and $result.mode -eq "submit" -and $result.submitted -ne $true) {
+                  $result = $null
+                  $rpaError = "Python-RPA fyllde sidan men kunde inte bekrafta att reklamationen verkligen skickades."
+                }
+              }
+            } catch {
+              $rpaError = $_.Exception.Message
+            }
+          }
+
+          if (-not $result -or -not $result.success) {
+            $fallbackRaw = & powershell -ExecutionPolicy Bypass -File $submitScript -CaseFile $caseFile -AsJson
+            $result = $fallbackRaw | ConvertFrom-Json
+            $result | Add-Member -NotePropertyName automation -NotePropertyValue "powershell-direct-submit" -Force
+
+            if ($rpaError) {
+              $result | Add-Member -NotePropertyName pythonRpaError -NotePropertyValue $rpaError -Force
+            } elseif ($rpaRaw) {
+              $result | Add-Member -NotePropertyName pythonRpaResult -NotePropertyValue $rpaRaw -Force
+            }
+          } else {
+            $result | Add-Member -NotePropertyName automation -NotePropertyValue "python-rpa" -Force
+          }
 
           Write-JsonResponse -Response $response -Payload $result -StatusCode 200
           continue

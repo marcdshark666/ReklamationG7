@@ -1,56 +1,61 @@
 # ReklamationG7
 
-En fristående webbapp för att samla in Dexcom G7-reklamationer till Rubin Medical, spara standarduppgifter och exportera ärenden som JSON. Repo:t innehåller också ett PowerShell-skript som försöker skicka samma data till Rubin Medicals Lime Forms-endpoint.
+En bild-forst-webbapp for Dexcom G7-reklamationer till Rubin Medical, plus en lokal Python-robot som kan fylla Rubin-formularet i Edge.
 
-## Vad som finns här
+## Flode
 
-- `index.html` - webbappen
-- `styles.css` - stil
-- `app.js` - logik för defaults, ärendeformulär, bildpreview och export/import
-- `scripts/submit-rubin.ps1` - PowerShell-spår för att skicka ett exporterat JSON-ärende till Rubin Medical
-
-## Rekommenderat arbetssätt
-
-1. Öppna `index.html` i webbläsaren.
-2. Fyll i dina standarduppgifter en gång.
-3. Lägg in ärendespecifik information och valfria bilder.
-4. Kontrollera "Rubin-preview".
-5. Exportera ärendet till JSON.
-6. Kör `scripts/submit-rubin.ps1` med den exporterade JSON-filen om du vill prova automatisk submit.
-
-## Lokal användning
-
-Du kan öppna webbappen direkt genom att dubbelklicka på `index.html`.
-
-## PowerShell-submit
-
-Exempel:
+1. Starta den lokala servern:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\submit-rubin.ps1 -CaseFile .\case-export.json
+powershell -ExecutionPolicy Bypass -File .\server.ps1
 ```
 
-Skriptet:
+2. Oppna `http://localhost:8765`
+3. Ladda upp bild, foto eller textfil hogst upp
+4. Appen laser in uppgifterna och fyller falten automatiskt
+5. Om nagot saknas markeras det i rott
+6. Tryck pa `Skicka vidare till Rubin`
 
-- hämtar aktuell formkonfiguration från Rubin Medicals Lime Forms
-- bygger en payload för G7-sensorreklamation
-- försöker skicka in ärendet
-- skriver ut HTTP-status och serversvar
+Nar du skickar forsoker appen nu:
 
-Observera att Rubin Medicals backend kan ändras över tid. Om endpointen eller CSRF-flödet ändras kan skriptet behöva uppdateras.
+1. kora den lokala Python-roboten i Edge
+2. falla tillbaka till direkt-submit om roboten inte kan starta
 
-## Varför inte UiPath eller Blue Prism här?
+## Python-RPA
 
-Den praktiska jämförelsen för just detta repo blev:
+Projektet innehaller nu en lokal Playwright-bot:
 
-- `UiPath`: stark för större RPA-flöden, men inte tillgänglig som direkt `winget`-paket på den här datorn i vårt testflöde, och kräver normalt konto-/portalflöde.
-- `Blue Prism`: ännu tyngre enterprise-spår och inte heller direktinstallerbar här via `winget`.
-- `Den här lösningen`: snabbast att få i drift för ett konkret formulärflöde och lättast att versionshantera i GitHub.
+- `scripts/rubin_rpa.py` - fyller Rubin Medicals formular i browsern
+- `scripts/run-rubin-rpa.ps1` - enkel PowerShell-start for roboten
+- `requirements.txt` - Python-beroenden
 
-## Nästa steg
+Om du vill kora roboten manuellt mot en exporterad case-fil:
 
-Bra fortsättning efter första commit:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-rubin-rpa.ps1 -CaseFile .\.tmp\case-export.json
+```
 
-- lägga till OCR för förpackningsbilder
-- lägga till GitHub Pages-deploy
-- lägga till Playwright eller annan browser automation när Node finns installerat
+Om du vill att roboten verkligen ska skicka in reklamationen:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\run-rubin-rpa.ps1 -CaseFile .\.tmp\case-export.json -Submit -Headless
+```
+
+## Installera om det behovs igen
+
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r .\requirements.txt
+```
+
+Roboten anvander installerad Microsoft Edge om den finns, annars Google Chrome.
+
+## Filer
+
+- `index.html` - bild-forst-granssnitt
+- `styles.css` - layout och rodamarkeringar
+- `app.js` - OCR, parser, preview och lokalt submitflode
+- `server.ps1` - lokal webbserver och brygga till Rubin
+- `scripts/submit-rubin.ps1` - direkt-submit till Lime Forms
+- `scripts/rubin_rpa.py` - Python-robot for Rubin-formularet
+- `scripts/run-rubin-rpa.ps1` - PowerShell-start for Python-roboten
