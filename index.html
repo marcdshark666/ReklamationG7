@@ -11,16 +11,16 @@
       <header class="hero">
         <div class="hero-copy">
           <p class="eyebrow">Dexcom G7 till Rubin Medical</p>
-          <h1>Reklamationsflode som sparar defaults och bygger ratt underlag</h1>
+          <h1>Reklamationsflöde som sparar defaults och bygger rätt underlag</h1>
           <p class="hero-text">
-            Fyll i standarduppgifter en gang, lagg in arendespecifika rader och
-            exportera ett fardigt JSON-underlag for submit eller arkivering.
+            Fyll i standarduppgifter en gång, lägg in ärendespecifika rader och
+            exportera ett färdigt JSON-underlag för submit eller arkivering.
           </p>
         </div>
         <div class="hero-card">
           <p class="hero-card-label">Status</p>
           <p id="statusMessage" class="hero-card-text">
-            Klar att fylla i ett nytt G7-arende.
+            Klar att fylla i ett nytt G7-ärende.
           </p>
         </div>
       </header>
@@ -29,16 +29,16 @@
         <section class="panel">
           <div class="panel-heading">
             <h2>Standarduppgifter</h2>
-            <p>Sparas lokalt i webblasaren for nasta arende.</p>
+            <p>Sparas lokalt i webbläsaren för nästa ärende.</p>
           </div>
 
           <div class="form-grid">
             <label>
-              Pumpanvandarens namn
+              Pumpanvändarens namn
               <input id="default_name" type="text" />
             </label>
             <label>
-              Eventuell malsman
+              Eventuell målsman
               <input id="default_guardian" type="text" />
             </label>
             <label>
@@ -95,13 +95,13 @@
 
         <section class="panel">
           <div class="panel-heading">
-            <h2>G7-arende</h2>
-            <p>Fyll i de rader som brukar andras fran reklamation till reklamation.</p>
+            <h2>G7-ärende</h2>
+            <p>Fyll i de rader som brukar ändras från reklamation till reklamation.</p>
           </div>
 
           <div class="form-grid">
             <label>
-              Forfragan
+              Förfrågan
               <input id="case_service" type="text" value="Reklamation" readonly />
             </label>
             <label>
@@ -109,19 +109,19 @@
               <input id="case_lot_number" type="text" />
             </label>
             <label>
-              Utgangsdatum sensor
+              Utgångsdatum sensor
               <input id="case_end_date" type="date" />
             </label>
             <label>
-              Datum da sensorn felade
+              Datum då sensorn felade
               <input id="case_error_date" type="date" />
             </label>
             <label>
-              Dagar kvar nar sensorn felade
+              Dagar kvar när sensorn felade
               <input id="case_days_remaining" type="number" min="0" max="10" />
             </label>
             <label>
-              Insattningsdatum
+              Insättningsdatum
               <input id="case_insert_date" type="date" />
             </label>
             <label class="span-2">
@@ -134,15 +134,15 @@
                 <option value="Sensorn fastnade i applikatorn (G7)">
                   Sensorn fastnade i applikatorn (G7)
                 </option>
-                <option value="Sensorhaftan lossnade i fortid fran huden (G7)">
-                  Sensorhaftan lossnade i fortid fran huden (G7)
+                <option value="Sensorhäftan lossnade i förtid från huden (G7)">
+                  Sensorhäftan lossnade i förtid från huden (G7)
                 </option>
-                <option value="Sensorn slutade visa varden (G7)" selected>
-                  Sensorn slutade visa varden (G7)
+                <option value="Sensorn slutade visa värden (G7)" selected>
+                  Sensorn slutade visa värden (G7)
                 </option>
                 <option value="Sensorfel 11 (G7)">Sensorfel 11 (G7)</option>
-                <option value="Sensorn visade felaktiga glukosvarden (G7)">
-                  Sensorn visade felaktiga glukosvarden (G7)
+                <option value="Sensorn visade felaktiga glukosvärden (G7)">
+                  Sensorn visade felaktiga glukosvärden (G7)
                 </option>
                 <option value="Det gick inte att parkoppla sensorn (G7)">
                   Det gick inte att parkoppla sensorn (G7)
@@ -155,17 +155,17 @@
               <input id="case_error_message" type="text" placeholder="t.ex. 48 CGM unavailable alert" />
             </label>
             <label class="span-2">
-              Under hur lang tid saknades sensorvarden innan ni tog bort sensorn?
+              Under hur lång tid saknades sensorvärden innan ni tog bort sensorn?
               <input
                 id="case_missing_values"
                 type="text"
-                placeholder="t.ex. Mer an 24 timmar i strack"
+                placeholder="t.ex. Mer än 24 timmar i sträck"
               />
             </label>
           </div>
 
           <div class="actions">
-            <button id="calculateInsertDateBtn" type="button">Rakna ut insattningsdatum</button>
+            <button id="calculateInsertDateBtn" type="button">Räkna ut insättningsdatum</button>
             <button id="loadMarcExampleBtn" type="button" class="secondary">
               Ladda Marc-exempel
             </button>
@@ -175,11 +175,11 @@
         <section class="panel">
           <div class="panel-heading">
             <h2>Bilder och underlag</h2>
-            <p>Valfritt. Bilder sparas i exportfilen som data-URL for snabb referens.</p>
+            <p>Valfritt. Bilder sparas i exportfilen som data-URL för snabb referens.</p>
           </div>
 
           <label class="uploader">
-            <span>Lagg till bilder</span>
+            <span>Lägg till bilder</span>
             <input id="imageInput" type="file" accept="image/*" multiple />
           </label>
 
@@ -189,7 +189,7 @@
         <section class="panel preview-panel">
           <div class="panel-heading">
             <h2>Rubin-preview</h2>
-            <p>Det har ar ordningen och innehallet som webbappen bygger infor submit/export.</p>
+            <p>Det här är ordningen och innehållet som webbappen bygger inför submit/export.</p>
           </div>
 
           <div id="previewList" class="preview-list"></div>

@@ -1,26 +1,26 @@
 # ReklamationG7
 
-En fristaende webbapp for att samla in Dexcom G7-reklamationer till Rubin Medical, spara standarduppgifter och exportera arenden som JSON. Repo:t innehaller ocksa ett PowerShell-skript som forsoker skicka samma data till Rubin Medicals Lime Forms-endpoint.
+En fristående webbapp för att samla in Dexcom G7-reklamationer till Rubin Medical, spara standarduppgifter och exportera ärenden som JSON. Repo:t innehåller också ett PowerShell-skript som försöker skicka samma data till Rubin Medicals Lime Forms-endpoint.
 
-## Vad som finns har
+## Vad som finns här
 
 - `index.html` - webbappen
 - `styles.css` - stil
-- `app.js` - logik for defaults, arendeformular, bildpreview och export/import
-- `scripts/submit-rubin.ps1` - PowerShell-spar for att skicka ett exporterat JSON-arende till Rubin Medical
+- `app.js` - logik för defaults, ärendeformulär, bildpreview och export/import
+- `scripts/submit-rubin.ps1` - PowerShell-spår för att skicka ett exporterat JSON-ärende till Rubin Medical
 
-## Rekommenderat arbetssatt
+## Rekommenderat arbetssätt
 
-1. Oppna `index.html` i webblasaren.
-2. Fyll i dina standarduppgifter en gang.
-3. Lagg in arendespecifik information och valfria bilder.
+1. Öppna `index.html` i webbläsaren.
+2. Fyll i dina standarduppgifter en gång.
+3. Lägg in ärendespecifik information och valfria bilder.
 4. Kontrollera "Rubin-preview".
-5. Exportera arendet till JSON.
-6. Kor `scripts/submit-rubin.ps1` med den exporterade JSON-filen om du vill prova automatisk submit.
+5. Exportera ärendet till JSON.
+6. Kör `scripts/submit-rubin.ps1` med den exporterade JSON-filen om du vill prova automatisk submit.
 
-## Lokal anvandning
+## Lokal användning
 
-Du kan oppna webbappen direkt genom att dubbelklicka pa `index.html`.
+Du kan öppna webbappen direkt genom att dubbelklicka på `index.html`.
 
 ## PowerShell-submit
 
@@ -32,25 +32,25 @@ powershell -ExecutionPolicy Bypass -File .\scripts\submit-rubin.ps1 -CaseFile .\
 
 Skriptet:
 
-- hamtar aktuell formkonfiguration fran Rubin Medicals Lime Forms
-- bygger en payload for G7-sensorreklamation
-- forsoker skicka in arendet
+- hämtar aktuell formkonfiguration från Rubin Medicals Lime Forms
+- bygger en payload för G7-sensorreklamation
+- försöker skicka in ärendet
 - skriver ut HTTP-status och serversvar
 
-Observera att Rubin Medicals backend kan andras over tid. Om endpointen eller CSRF-flodet andras kan skriptet behova uppdateras.
+Observera att Rubin Medicals backend kan ändras över tid. Om endpointen eller CSRF-flödet ändras kan skriptet behöva uppdateras.
 
-## Varfor inte UiPath eller Blue Prism har?
+## Varför inte UiPath eller Blue Prism här?
 
-Den praktiska jamforelsen for just detta repo blev:
+Den praktiska jämförelsen för just detta repo blev:
 
-- `UiPath`: stark for storre RPA-floden, men inte tillganglig som direkt `winget`-paket pa den har datorn i vart testflode, och kraver normalt konto-/portalflode.
-- `Blue Prism`: annu tyngre enterprise-spar och inte heller direktinstallerbar har via `winget`.
-- `Den har losningen`: snabbast att fa i drift for ett konkret formularflode och lattast att versionshantera i GitHub.
+- `UiPath`: stark för större RPA-flöden, men inte tillgänglig som direkt `winget`-paket på den här datorn i vårt testflöde, och kräver normalt konto-/portalflöde.
+- `Blue Prism`: ännu tyngre enterprise-spår och inte heller direktinstallerbar här via `winget`.
+- `Den här lösningen`: snabbast att få i drift för ett konkret formulärflöde och lättast att versionshantera i GitHub.
 
-## Nasta steg
+## Nästa steg
 
-Bra fortsattning efter forsta commit:
+Bra fortsättning efter första commit:
 
-- lagga till OCR for forpackningsbilder
-- lagga till GitHub Pages-deploy
-- lagga till Playwright eller annan browser automation nar Node finns installerat
+- lägga till OCR för förpackningsbilder
+- lägga till GitHub Pages-deploy
+- lägga till Playwright eller annan browser automation när Node finns installerat

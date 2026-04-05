@@ -3,10 +3,10 @@ const DRAFT_KEY = "reklamationg7-draft";
 
 const issueValueMap = {
   "Sensorn fastnade i applikatorn (G7)": "1109",
-  "Sensorhaftan lossnade i fortid fran huden (G7)": "1186",
-  "Sensorn slutade visa varden (G7)": "1143",
+  "Sensorhäftan lossnade i förtid från huden (G7)": "1186",
+  "Sensorn slutade visa värden (G7)": "1143",
   "Sensorfel 11 (G7)": "1091",
-  "Sensorn visade felaktiga glukosvarden (G7)": "1140",
+  "Sensorn visade felaktiga glukosvärden (G7)": "1140",
   "Det gick inte att parkoppla sensorn (G7)": "1139",
   "Annat fel": "1043",
 };
@@ -40,11 +40,11 @@ const caseFields = [
 
 const marcExample = {
   defaults: {
-    default_name: "Marc Jonsson",
-    default_guardian: "Marc Jonsson",
+    default_name: "Marc Jönsson",
+    default_guardian: "Marc Jönsson",
     default_email: "Marc.jonsson@stud.umed.lodz.pl",
     default_phone: "0708640865",
-    default_address: "Gubbkarsvagen 19B",
+    default_address: "Gubbkärsvägen 19B",
     default_zipcode: "16840",
     default_city: "Stockholm",
     default_serialno: "861743",
@@ -60,9 +60,9 @@ const marcExample = {
     case_days_remaining: "6",
     case_insert_date: "2026-03-31",
     case_placement: "Buken bredvid naveln",
-    case_issue: "Sensorn slutade visa varden (G7)",
+    case_issue: "Sensorn slutade visa värden (G7)",
     case_error_message: "48 CGM unavailable alert",
-    case_missing_values: "Mer an 24 timmar i strack",
+    case_missing_values: "Mer än 24 timmar i sträck",
   },
 };
 
@@ -94,7 +94,7 @@ function setStatus(message) {
 
 function saveDefaults() {
   localStorage.setItem(DEFAULTS_KEY, JSON.stringify(fieldValues(defaultsFields)));
-  setStatus("Defaults sparade lokalt. Nasta arende kan starta fran samma bas.");
+  setStatus("Defaults sparade lokalt. Nästa ärende kan starta från samma bas.");
   renderPreview();
 }
 
@@ -106,10 +106,10 @@ function loadDefaults() {
 
   try {
     applyValues(JSON.parse(raw));
-    setStatus("Tidigare defaults laddades fran webblasaren.");
+    setStatus("Tidigare defaults laddades från webbläsaren.");
   } catch (error) {
     console.error(error);
-    setStatus("Defaults kunde inte lasas. Du kan spara dem pa nytt.");
+    setStatus("Defaults kunde inte läsas. Du kan spara dem på nytt.");
   }
 }
 
@@ -130,7 +130,7 @@ function loadDraft() {
     uploadedImages = payload.images || [];
     renderImages();
     renderPreview();
-    setStatus("Senaste utkastet aterstalldes.");
+    setStatus("Senaste utkastet återställdes.");
   } catch (error) {
     console.error(error);
   }
@@ -144,7 +144,7 @@ function clearDefaults() {
   $("default_product").value = "Dexcom G7 Sensor";
   $("default_clean_insertion").value = "Ja";
   renderPreview();
-  setStatus("Defaults rensades fran webblasaren.");
+  setStatus("Defaults rensades från webbläsaren.");
 }
 
 function buildRubinPayload() {
@@ -152,9 +152,9 @@ function buildRubinPayload() {
   const caseData = fieldValues(caseFields);
 
   return [
-    ["Forfragan", caseData.case_service || "Reklamation"],
-    ["Pumpanvandarens namn", defaults.default_name],
-    ["Eventuell malsman", defaults.default_guardian],
+    ["Förfrågan", caseData.case_service || "Reklamation"],
+    ["Pumpanvändarens namn", defaults.default_name],
+    ["Eventuell målsman", defaults.default_guardian],
     ["E-post", defaults.default_email],
     ["Mobilnummer", defaults.default_phone],
     ["Adress", defaults.default_address],
@@ -164,16 +164,16 @@ function buildRubinPayload() {
     ["Klinik", defaults.default_clinic],
     ["Produkt", defaults.default_product],
     ["Sensorns LOT nummer", caseData.case_lot_number],
-    ["Utgangsdatum sensor", caseData.case_end_date],
-    ["Insattningsdatum", caseData.case_insert_date],
-    ["Datum da sensorn felade", caseData.case_error_date],
+    ["Utgångsdatum sensor", caseData.case_end_date],
+    ["Insättningsdatum", caseData.case_insert_date],
+    ["Datum då sensorn felade", caseData.case_error_date],
     ["Placering", caseData.case_placement],
     ["Vilket fel upplevde ni med G7 sensorn?", caseData.case_issue],
     ["Vilket felmeddelande fick ni i Tandem insulinpump?", caseData.case_error_message],
-    ["Rengjorde du insticksstallet med en spritsudd?", defaults.default_clean_insertion],
-    ["Under hur lang tid saknades sensorvarden innan ni tog bort sensorn?", caseData.case_missing_values],
-    ["Bekraftelse om Rubin-klistermarke", "Ja"],
-    ["Jag forsakrar att alla uppgifter ar korrekta och sanningsenliga", "Ja"],
+    ["Rengjorde du insticksstället med en spritsudd?", defaults.default_clean_insertion],
+    ["Under hur lång tid saknades sensorvärden innan ni tog bort sensorn?", caseData.case_missing_values],
+    ["Bekräftelse om Rubin-klistermärke", "Ja"],
+    ["Jag försäkrar att alla uppgifter är korrekta och sanningsenliga", "Ja"],
   ];
 }
 
@@ -185,7 +185,7 @@ function renderPreview() {
   buildRubinPayload().forEach(([label, value]) => {
     const fragment = template.content.cloneNode(true);
     fragment.querySelector(".preview-label").textContent = label;
-    fragment.querySelector(".preview-value").textContent = value || "-";
+    fragment.querySelector(".preview-value").textContent = value || "—";
     previewList.appendChild(fragment);
   });
 }
@@ -199,7 +199,7 @@ function calculateInsertDate() {
   const daysRemainingValue = Number($("case_days_remaining").value);
 
   if (!errorDateValue || Number.isNaN(daysRemainingValue)) {
-    setStatus("Ange bade feldatum och dagar kvar innan insattningsdatum kan raknas ut.");
+    setStatus("Ange både feldatum och dagar kvar innan insättningsdatum kan räknas ut.");
     return;
   }
 
@@ -209,7 +209,7 @@ function calculateInsertDate() {
   $("case_insert_date").value = toISODate(errorDate);
   renderPreview();
   saveDraft();
-  setStatus("Insattningsdatum raknades ut fran 10-dagarsperioden.");
+  setStatus("Insättningsdatum räknades ut från 10-dagarsperioden.");
 }
 
 function buildExportPayload() {
@@ -240,12 +240,12 @@ function downloadJson() {
   link.download = "case-export.json";
   link.click();
   URL.revokeObjectURL(url);
-  setStatus("JSON exporterades. Du kan nu anvanda den i submit-skriptet.");
+  setStatus("JSON exporterades. Du kan nu använda den i submit-skriptet.");
 }
 
 function copySummary() {
   const text = buildRubinPayload()
-    .map(([label, value]) => `${label}: ${value || "-"}`)
+    .map(([label, value]) => `${label}: ${value || "—"}`)
     .join("\n");
 
   navigator.clipboard
@@ -265,7 +265,7 @@ function renderImages() {
   if (!uploadedImages.length) {
     const empty = document.createElement("p");
     empty.className = "hero-text";
-    empty.textContent = "Inga bilder tillagda annu.";
+    empty.textContent = "Inga bilder tillagda ännu.";
     container.appendChild(empty);
     return;
   }
@@ -314,7 +314,7 @@ async function handleImages(event) {
   uploadedImages = nextImages;
   renderImages();
   saveDraft();
-  setStatus(`Lade till ${uploadedImages.length} bild(er) i arendet.`);
+  setStatus(`Lade till ${uploadedImages.length} bild(er) i ärendet.`);
 }
 
 function importJson(event) {
@@ -333,10 +333,10 @@ function importJson(event) {
       renderImages();
       renderPreview();
       saveDraft();
-      setStatus("JSON importerades och formularet uppdaterades.");
+      setStatus("JSON importerades och formuläret uppdaterades.");
     } catch (error) {
       console.error(error);
-      setStatus("Importen misslyckades. Kontrollera att filen ar en giltig export.");
+      setStatus("Importen misslyckades. Kontrollera att filen är en giltig export.");
     }
   };
   reader.readAsText(file);
@@ -347,7 +347,7 @@ function loadMarcExample() {
   applyValues(marcExample.caseData);
   renderPreview();
   saveDraft();
-  setStatus("Marc-exemplet laddades in i formularet.");
+  setStatus("Marc-exemplet laddades in i formuläret.");
 }
 
 function bindAutoSave() {
