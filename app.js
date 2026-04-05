@@ -3,11 +3,26 @@ const DRAFT_KEY = "reklamationg7-draft";
 const SURVEY_URL = "https://rubinmedical.lime-forms.se/forms/nlCvHsnLaU7h4thf4stN";
 
 const builtInDefaults = {
+  default_name: "Marc J\u00f6nsson",
+  default_guardian: "Marc J\u00f6nsson",
+  default_email: "Marc.jonsson@stud.umed.lodz.pl",
+  default_phone: "0708640865",
   default_address: "Gubbk\u00e4rrsv\u00e4gen 19B",
   default_zipcode: "16840",
   default_city: "Stockholm",
   default_serialno: "861743",
+  default_clinic: "Solna Karolinska Diabetesmottagning",
+  default_product: "Dexcom G7 Sensor",
+  default_clean_insertion: "Ja",
   default_dexcom_username: "marcjonsson_d2",
+};
+
+const builtInCaseDefaults = {
+  case_service: "Reklamation",
+  case_placement: "Buken bredvid naveln",
+  case_issue: "issue_stopped_values",
+  case_error_message: "48 CGM unavailable alert",
+  case_missing_values: "Mer \u00e4n 24 timmar i str\u00e4ck",
 };
 
 const issueCatalog = {
@@ -69,6 +84,7 @@ const fieldLabels = {
   case_service: "F\u00f6rfr\u00e5gan",
   case_lot_number: "Sensorns LOT nummer",
   case_end_date: "Utg\u00e5ngsdatum sensor",
+  case_manufacture_date: "Tillverkningsdatum",
   case_error_date: "Datum d\u00e5 sensorn felade",
   case_days_remaining: "Dagar kvar n\u00e4r sensorn felade",
   case_insert_date: "Ins\u00e4ttningsdatum",
@@ -96,6 +112,7 @@ const caseFields = [
   "case_service",
   "case_lot_number",
   "case_end_date",
+  "case_manufacture_date",
   "case_error_date",
   "case_days_remaining",
   "case_insert_date",
@@ -288,6 +305,7 @@ function saveDefaults() {
 
 function loadDefaults() {
   applyValues(builtInDefaults);
+  applyValues(builtInCaseDefaults);
 
   const raw = localStorage.getItem(DEFAULTS_KEY);
   if (!raw) {
@@ -297,6 +315,7 @@ function loadDefaults() {
   try {
     applyValues(JSON.parse(raw));
     applyValues(builtInDefaults);
+    applyValues(builtInCaseDefaults);
   } catch (error) {
     console.error(error);
   }
@@ -322,9 +341,8 @@ function clearDefaults() {
   defaultsFields.forEach((id) => {
     $(id).value = "";
   });
-  $("default_product").value = "Dexcom G7 Sensor";
-  $("default_clean_insertion").value = "Ja";
   applyValues(builtInDefaults);
+  applyValues(builtInCaseDefaults);
   renderPreview();
   renderMissingList();
   saveDraft();
@@ -492,13 +510,62 @@ function calculateInsertDate() {
 }
 
 function findUnlabelledFutureDate(text) {
-  const matches = [...text.matchAll(/\b20\d{2}-\d{2}-\d{2}\b/g)].map((match) => match[0]);
+  const matches = [...text.matchAll(/20\d{2}-\d{2}-\d{2}/g)].map((match) => match[0]);
   if (!matches.length) {
     return "";
   }
 
   const sorted = [...new Set(matches)].sort();
   return sorted[sorted.length - 1];
+}
+
+function extractAllMachineDates(text) {
+  const matches = [...text.matchAll(/20\d{2}[-/.]\d{2}[-/.]\d{2}/g)]
+    .map((match) => match[0].replace(/[/.]/g, "-"))
+    .map((value) => parseDateCandidate(value))
+    .filter(Boolean);
+
+  return [...new Set(matches)].sort();
+}
+
+function inferManufactureDate(text, chosenEndDate) {
+  const labelledManufacture = extractFirst(
+    text,
+    /(?:tillverkningsdatum|manufactured|mfg|prod(?:uction)? date)\s*[:\-]?\s*([0-9\/\-. ]{6,20})/i,
+  );
+  const parsedLabelledManufacture = parseDateCandidate(labelledManufacture);
+  if (parsedLabelledManufacture) {
+    return parsedLabelledManufacture;
+  }
+
+  const dates = extractAllMachineDates(text);
+  if (dates.length < 2) {
+    return "";
+  }
+
+  const earliest = dates[0];
+  if (chosenEndDate && earliest === chosenEndDate && dates.length > 1) {
+    return dates[1];
+  }
+
+  return earliest === chosenEndDate ? "" : earliest;
+}
+
+function inferLotFromOcr(text) {
+  const labelledLot = extractFirst(
+    text,
+    /\bLOT\b(?:\s*(?:nr|nummer|no))?\s*[:#\-]?\s*([A-Z0-9 ]{6,20})/i,
+  );
+  if (labelledLot) {
+    return labelledLot.replace(/\s{2,}/g, " ").trim();
+  }
+
+  const numberCandidates = [...text.matchAll(/\d[\d ]{7,14}\d/g)]
+    .map((match) => match[0].replace(/\s+/g, ""))
+    .filter((value) => value.length >= 8 && value.length <= 12)
+    .filter((value) => !/^20\d{6}$/.test(value));
+
+  return numberCandidates[0] || "";
 }
 
 function fillFromText(text) {
@@ -532,7 +599,7 @@ function fillFromText(text) {
     }
   });
 
-  const lotValue = extractFirst(text, /lot(?:\s*nr|\s*nummer)?\s*[:\-]?\s*([A-Z0-9 ]{6,})/i);
+  const lotValue = extractFirst(text, /lot(?:\s*nr|\s*nummer)?\s*[:\-]?\s*([A-Z0-9 ]{6,})/i) || inferLotFromOcr(text);
   if (lotValue) {
     foundValues.case_lot_number = lotValue.replace(/\s{2,}/g, " ").trim();
   }
@@ -544,6 +611,11 @@ function fillFromText(text) {
   const parsedEndDate = parseDateCandidate(endDateRaw) || findUnlabelledFutureDate(text);
   if (parsedEndDate) {
     foundValues.case_end_date = parsedEndDate;
+  }
+
+  const manufactureDate = inferManufactureDate(text, parsedEndDate || $("case_end_date").value);
+  if (manufactureDate) {
+    foundValues.case_manufacture_date = manufactureDate;
   }
 
   const errorDateRaw = extractFirst(
