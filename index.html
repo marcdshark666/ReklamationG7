@@ -25,27 +25,34 @@
             Klar att l&auml;sa bild, fylla formul&auml;ret och skicka till Rubin.
           </p>
 
-          <label class="uploader wide-uploader primary-uploader">
-            <span>&#128308; Tryck h&auml;r och v&auml;lj bild eller textfil</span>
+          <div class="upload-stack">
+            <button id="openGalleryBtn" type="button" class="upload-trigger">
+              &#128308; Ladda upp bild
+            </button>
+            <button id="openCameraBtn" type="button" class="secondary upload-trigger">
+              &#128247; Ta foto med kamera
+            </button>
+            <input id="galleryInput" class="hidden-file-input" type="file" accept="image/*" multiple />
             <input
-              id="intakeFilesInput"
+              id="cameraInput"
+              class="hidden-file-input"
               type="file"
-              accept="image/*,text/plain,.txt,.md,.json,application/json"
-              multiple
+              accept="image/*"
+              capture="environment"
             />
-          </label>
+          </div>
 
           <p class="hero-upload-note">
-            Efter uppladdningen l&auml;ser appen filerna direkt, fyller f&auml;lten och
+            Efter uppladdningen l&auml;ser appen bilden direkt, fyller f&auml;lten och
             f&ouml;rs&ouml;ker skicka automatiskt om inget saknas.
           </p>
 
           <label class="quick-text-label">
-            Skriv extra information h&auml;r om n&aring;got inte syns p&aring; bilden
+            Skriv bara den extra informationen f&ouml;r just den h&auml;r sensorn
             <textarea
               id="intake_text"
               rows="6"
-              placeholder="Till exempel: 'insatt 2026-03-31', '6 dagar kvar', 'placering: buken bredvid naveln' eller 'felkod: 48 CGM unavailable alert'."
+              placeholder="Till exempel: 'insatt 2026-03-31', '6 dagar kvar', 'placering: buken bredvid naveln' eller annan info som inte syns pa bilden."
             ></textarea>
           </label>
 
@@ -72,15 +79,15 @@
             <div class="guide-card span-2">
               <h3>&#128308; Det h&auml;r &auml;r allt du ska g&ouml;ra f&ouml;rst</h3>
               <ul class="guide-list">
-                <li>&#128308; Tryck p&aring; knappen h&ouml;gst upp och v&auml;lj bild, flera bilder eller en textfil</li>
+                <li>&#128308; Tryck p&aring; bildknappen eller kameraknappen h&ouml;gst upp</li>
                 <li>&#128308; Appen fyller f&auml;lten automatiskt och f&ouml;rs&ouml;ker skicka n&auml;r allt finns</li>
-                <li>&#128308; Om n&aring;got saknas ser du det l&auml;ngre ner med r&ouml;da markeringar</li>
+                <li>&#128308; Om n&aring;got saknas skriver du bara det i textf&auml;ltet och trycker p&aring; fyll-i-knappen</li>
               </ul>
             </div>
 
             <div class="guide-card">
-              <h3>&#128308; V&auml;lj filer igen vid behov</h3>
-              <button id="chooseFilesBtn" type="button">&#128308; V&auml;lj bild eller textfil igen</button>
+              <h3>&#128308; L&auml;gg till fler bilder vid behov</h3>
+              <button id="chooseFilesBtn" type="button">&#128308; L&auml;gg till fler bilder</button>
               <p class="danger-note">
                 &#128308; L&auml;gg g&auml;rna upp bild p&aring; LOT, utg&aring;ngsdatum, felkod och
                 sensorf&ouml;rpackning.
@@ -92,6 +99,9 @@
               <p class="danger-note">
                 &#128308; Skriv den extra informationen i textf&auml;ltet h&ouml;gst upp och
                 tryck sedan p&aring; <strong>Fyll i formul&auml;ret automatiskt</strong>.
+              </p>
+              <p class="danger-note">
+                &#128308; Adress, postnummer, stad och pumpserienummer ligger redan som fasta standardv&auml;rden.
               </p>
             </div>
           </div>

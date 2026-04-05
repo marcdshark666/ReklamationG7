@@ -315,6 +315,21 @@ function loadDefaults() {
   }
 }
 
+function mergeUniqueByKey(existingItems, nextItems, keySelector) {
+  const seen = new Set(existingItems.map(keySelector));
+  const merged = [...existingItems];
+
+  nextItems.forEach((item) => {
+    const key = keySelector(item);
+    if (!seen.has(key)) {
+      seen.add(key);
+      merged.push(item);
+    }
+  });
+
+  return merged;
+}
+
 function clearDefaults() {
   localStorage.removeItem(DEFAULTS_KEY);
   defaultsFields.forEach((id) => {
@@ -761,8 +776,8 @@ function isTextFile(file) {
   );
 }
 
-async function handleIntakeFiles(event) {
-  const files = Array.from(event.target.files || []);
+async function handlePickedFiles(fileList) {
+  const files = Array.from(fileList || []);
   if (!files.length) {
     return;
   }
@@ -801,15 +816,31 @@ async function handleIntakeFiles(event) {
     });
   }
 
-  uploadedImages = nextImages;
-  uploadedDocuments = nextDocuments;
+  uploadedImages = mergeUniqueByKey(
+    uploadedImages,
+    nextImages,
+    (image) => `${image.name}-${image.size}`,
+  );
+  uploadedDocuments = mergeUniqueByKey(
+    uploadedDocuments,
+    nextDocuments,
+    (documentItem) => `${documentItem.name}-${documentItem.size}`,
+  );
+
   renderUploads();
   renderMissingList();
   saveDraft();
-  setStatus(`Lade till ${files.length} fil(er). L\u00e4ser nu inneh\u00e5llet automatiskt...`);
-
-  event.target.value = "";
+  setStatus(`Lade till ${files.length} ny(a) fil(er). L\u00e4ser nu inneh\u00e5llet automatiskt...`);
   await parseIntake({ autoSubmit: true });
+}
+
+async function handleIntakeFiles(event) {
+  const files = Array.from(event.target.files || []);
+  if (!files.length) {
+    return;
+  }
+  event.target.value = "";
+  await handlePickedFiles(files);
 }
 
 function downloadJson() {
@@ -960,13 +991,16 @@ function init() {
   $("downloadJsonBtn").addEventListener("click", downloadJson);
   $("copySummaryBtn").addEventListener("click", copySummary);
   $("loadMarcExampleBtn").addEventListener("click", loadMarcExample);
-  $("intakeFilesInput").addEventListener("change", handleIntakeFiles);
+  $("galleryInput").addEventListener("change", handleIntakeFiles);
+  $("cameraInput").addEventListener("change", handleIntakeFiles);
   $("importJsonInput").addEventListener("change", importJson);
   $("parseIntakeBtn").addEventListener("click", () => parseIntake({ autoSubmit: false }));
   $("submitToRubinBtn").addEventListener("click", () => submitToRubin({ autoTriggered: false }));
   $("openRubinBtn").addEventListener("click", openRubinSurvey);
   $("openRubinBottomBtn").addEventListener("click", openRubinSurvey);
-  $("chooseFilesBtn").addEventListener("click", () => $("intakeFilesInput").click());
+  $("openGalleryBtn").addEventListener("click", () => $("galleryInput").click());
+  $("openCameraBtn").addEventListener("click", () => $("cameraInput").click());
+  $("chooseFilesBtn").addEventListener("click", () => $("galleryInput").click());
 }
 
 init();
