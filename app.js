@@ -106,22 +106,9 @@ const caseFields = [
 ];
 
 const requiredFields = [
-  ["default_name", "Pumpanv\u00e4ndarens namn"],
-  ["default_email", "E-post"],
-  ["default_phone", "Mobilnummer"],
-  ["default_address", "Adress"],
-  ["default_zipcode", "Postnummer"],
-  ["default_city", "Stad"],
-  ["default_serialno", "Serienummer Tandem insulinpump"],
-  ["default_clinic", "Klinik"],
   ["case_lot_number", "Sensorns LOT nummer"],
-  ["case_end_date", "Utg\u00e5ngsdatum sensor"],
   ["case_error_date", "Datum d\u00e5 sensorn felade"],
   ["case_insert_date", "Ins\u00e4ttningsdatum"],
-  ["case_placement", "Placering"],
-  ["case_issue", "Fel p\u00e5 G7-sensorn"],
-  ["case_error_message", "Felmeddelande i Tandem insulinpump"],
-  ["case_missing_values", "Hur l\u00e4nge sensorv\u00e4rden saknades"],
 ];
 
 const swedishMonths = {
