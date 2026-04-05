@@ -11,34 +11,134 @@
       <header class="hero">
         <div class="hero-copy">
           <p class="eyebrow">Dexcom G7 till Rubin Medical</p>
-          <h1>Reklamationsflöde som sparar defaults och bygger rätt underlag</h1>
+          <h1>Du ska helst bara beh&ouml;va ge en bild</h1>
           <p class="hero-text">
-            Fyll i standarduppgifter en gång, lägg in ärendespecifika rader och
-            exportera ett färdigt JSON-underlag för submit eller arkivering.
+            Tryck p&aring; knappen h&ouml;gst upp, v&auml;lj bild eller textfil och l&aring;t appen
+            fylla i s&aring; mycket den hittar. Om n&aring;got saknas visas det tydligt med
+            r&ouml;da markeringar s&aring; att du bara kompletterar just det som fattas.
           </p>
         </div>
+
         <div class="hero-card">
           <p class="hero-card-label">Status</p>
           <p id="statusMessage" class="hero-card-text">
-            Klar att fylla i ett nytt G7-ärende.
+            Klar att l&auml;sa bild, fylla formul&auml;ret och skicka till Rubin.
           </p>
+
+          <label class="uploader wide-uploader primary-uploader">
+            <span>&#128308; Tryck h&auml;r och v&auml;lj bild eller textfil</span>
+            <input
+              id="intakeFilesInput"
+              type="file"
+              accept="image/*,text/plain,.txt,.md,.json,application/json"
+              multiple
+            />
+          </label>
+
+          <p class="hero-upload-note">
+            Efter uppladdningen l&auml;ser appen filerna direkt, fyller f&auml;lten och
+            f&ouml;rs&ouml;ker skicka automatiskt om inget saknas.
+          </p>
+
+          <label class="quick-text-label">
+            Skriv extra information h&auml;r om n&aring;got inte syns p&aring; bilden
+            <textarea
+              id="intake_text"
+              rows="6"
+              placeholder="Till exempel: 'insatt 2026-03-31', '6 dagar kvar', 'placering: buken bredvid naveln' eller 'felkod: 48 CGM unavailable alert'."
+            ></textarea>
+          </label>
+
+          <div class="actions hero-actions">
+            <button id="parseIntakeBtn" type="button">Fyll i formul&auml;ret automatiskt</button>
+            <button id="submitToRubinBtn" type="button" class="danger-button">
+              Skicka vidare till Rubin
+            </button>
+          </div>
         </div>
       </header>
 
       <main class="layout">
+        <section class="panel intake-panel">
+          <div class="panel-heading">
+            <h2>&#128308; Steg 1: Anv&auml;nd bara filknappen h&ouml;gst upp</h2>
+            <p>
+              N&auml;r du har valt filer ovan forts&auml;tter appen sj&auml;lv. Om bilderna eller
+              textfilen inte r&auml;cker visar den exakt vad som fortfarande saknas.
+            </p>
+          </div>
+
+          <div class="intake-grid">
+            <div class="guide-card span-2">
+              <h3>&#128308; Det h&auml;r &auml;r allt du ska g&ouml;ra f&ouml;rst</h3>
+              <ul class="guide-list">
+                <li>&#128308; Tryck p&aring; knappen h&ouml;gst upp och v&auml;lj bild, flera bilder eller en textfil</li>
+                <li>&#128308; Appen fyller f&auml;lten automatiskt och f&ouml;rs&ouml;ker skicka n&auml;r allt finns</li>
+                <li>&#128308; Om n&aring;got saknas ser du det l&auml;ngre ner med r&ouml;da markeringar</li>
+              </ul>
+            </div>
+
+            <div class="guide-card">
+              <h3>&#128308; V&auml;lj filer igen vid behov</h3>
+              <button id="chooseFilesBtn" type="button">&#128308; V&auml;lj bild eller textfil igen</button>
+              <p class="danger-note">
+                &#128308; L&auml;gg g&auml;rna upp bild p&aring; LOT, utg&aring;ngsdatum, felkod och
+                sensorf&ouml;rpackning.
+              </p>
+            </div>
+
+            <div class="guide-card">
+              <h3>&#128308; Bara om appen s&auml;ger att n&aring;got saknas</h3>
+              <p class="danger-note">
+                &#128308; Skriv den extra informationen i textf&auml;ltet h&ouml;gst upp och
+                tryck sedan p&aring; <strong>Fyll i formul&auml;ret automatiskt</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="openRubinBtn" type="button" class="secondary">
+              &Ouml;ppna Rubin manuellt
+            </button>
+            <button id="loadMarcExampleBtn" type="button" class="secondary">
+              Ladda Marc-exempel
+            </button>
+          </div>
+
+          <div class="feedback-grid">
+            <section class="feedback-card">
+              <h3>&#128308; Det h&auml;r saknas just nu</h3>
+              <div id="missingList" class="missing-list"></div>
+            </section>
+            <section class="feedback-card">
+              <h3>Det h&auml;r hittades automatiskt</h3>
+              <div id="parseNotes" class="parse-notes"></div>
+            </section>
+          </div>
+
+          <div id="imagePreview" class="image-grid"></div>
+        </section>
+
         <section class="panel">
           <div class="panel-heading">
             <h2>Standarduppgifter</h2>
-            <p>Sparas lokalt i webbläsaren för nästa ärende.</p>
+            <p>
+              De h&auml;r uppgifterna sparas lokalt och &aring;teranv&auml;nds varje g&aring;ng. Du ska
+              allts&aring; inte beh&ouml;va skriva om dem f&ouml;r varje reklamation.
+            </p>
+            <p>
+              Fasta standardv&auml;rden &auml;r redan l&aring;sta f&ouml;r adress, postnummer, stad
+              och pumpserienummer.
+            </p>
           </div>
 
           <div class="form-grid">
             <label>
-              Pumpanvändarens namn
+              Pumpanv&auml;ndarens namn
               <input id="default_name" type="text" />
             </label>
             <label>
-              Eventuell målsman
+              Eventuell m&aring;lsman
               <input id="default_guardian" type="text" />
             </label>
             <label>
@@ -95,13 +195,16 @@
 
         <section class="panel">
           <div class="panel-heading">
-            <h2>G7-ärende</h2>
-            <p>Fyll i de rader som brukar ändras från reklamation till reklamation.</p>
+            <h2>F&auml;lt som fylls automatiskt nedanf&ouml;r</h2>
+            <p>
+              H&auml;r kan du kontrollera resultatet. Om n&aring;got &auml;r fel g&aring;r det alltid
+              att r&auml;tta manuellt innan skick.
+            </p>
           </div>
 
           <div class="form-grid">
             <label>
-              Förfrågan
+              F&ouml;rfr&aring;gan
               <input id="case_service" type="text" value="Reklamation" readonly />
             </label>
             <label>
@@ -109,19 +212,19 @@
               <input id="case_lot_number" type="text" />
             </label>
             <label>
-              Utgångsdatum sensor
+              Utg&aring;ngsdatum sensor
               <input id="case_end_date" type="date" />
             </label>
             <label>
-              Datum då sensorn felade
+              Datum d&aring; sensorn felade
               <input id="case_error_date" type="date" />
             </label>
             <label>
-              Dagar kvar när sensorn felade
+              Dagar kvar n&auml;r sensorn felade
               <input id="case_days_remaining" type="number" min="0" max="10" />
             </label>
             <label>
-              Insättningsdatum
+              Ins&auml;ttningsdatum
               <input id="case_insert_date" type="date" />
             </label>
             <label class="span-2">
@@ -131,23 +234,13 @@
             <label class="span-2">
               Vilket fel upplevde ni med G7 sensorn?
               <select id="case_issue">
-                <option value="Sensorn fastnade i applikatorn (G7)">
-                  Sensorn fastnade i applikatorn (G7)
-                </option>
-                <option value="Sensorhäftan lossnade i förtid från huden (G7)">
-                  Sensorhäftan lossnade i förtid från huden (G7)
-                </option>
-                <option value="Sensorn slutade visa värden (G7)" selected>
-                  Sensorn slutade visa värden (G7)
-                </option>
-                <option value="Sensorfel 11 (G7)">Sensorfel 11 (G7)</option>
-                <option value="Sensorn visade felaktiga glukosvärden (G7)">
-                  Sensorn visade felaktiga glukosvärden (G7)
-                </option>
-                <option value="Det gick inte att parkoppla sensorn (G7)">
-                  Det gick inte att parkoppla sensorn (G7)
-                </option>
-                <option value="Annat fel">Annat fel</option>
+                <option value="issue_applicator_stuck">Sensorn fastnade i applikatorn (G7)</option>
+                <option value="issue_adhesive_loosened">Sensorh&auml;ftan lossnade i f&ouml;rtid fr&aring;n huden (G7)</option>
+                <option value="issue_stopped_values" selected>Sensorn slutade visa v&auml;rden (G7)</option>
+                <option value="issue_sensor_error_11">Sensorfel 11 (G7)</option>
+                <option value="issue_wrong_values">Sensorn visade felaktiga glukosv&auml;rden (G7)</option>
+                <option value="issue_pairing_failed">Det gick inte att parkoppla sensorn (G7)</option>
+                <option value="issue_other">Annat fel</option>
               </select>
             </label>
             <label class="span-2">
@@ -155,41 +248,27 @@
               <input id="case_error_message" type="text" placeholder="t.ex. 48 CGM unavailable alert" />
             </label>
             <label class="span-2">
-              Under hur lång tid saknades sensorvärden innan ni tog bort sensorn?
+              Under hur l&aring;ng tid saknades sensorv&auml;rden innan ni tog bort sensorn?
               <input
                 id="case_missing_values"
                 type="text"
-                placeholder="t.ex. Mer än 24 timmar i sträck"
+                placeholder="t.ex. Mer &auml;n 24 timmar i str&auml;ck"
               />
             </label>
           </div>
 
           <div class="actions">
-            <button id="calculateInsertDateBtn" type="button">Räkna ut insättningsdatum</button>
-            <button id="loadMarcExampleBtn" type="button" class="secondary">
-              Ladda Marc-exempel
-            </button>
+            <button id="calculateInsertDateBtn" type="button">R&auml;kna ut ins&auml;ttningsdatum</button>
           </div>
-        </section>
-
-        <section class="panel">
-          <div class="panel-heading">
-            <h2>Bilder och underlag</h2>
-            <p>Valfritt. Bilder sparas i exportfilen som data-URL för snabb referens.</p>
-          </div>
-
-          <label class="uploader">
-            <span>Lägg till bilder</span>
-            <input id="imageInput" type="file" accept="image/*" multiple />
-          </label>
-
-          <div id="imagePreview" class="image-grid"></div>
         </section>
 
         <section class="panel preview-panel">
           <div class="panel-heading">
             <h2>Rubin-preview</h2>
-            <p>Det här är ordningen och innehållet som webbappen bygger inför submit/export.</p>
+            <p>
+              Det h&auml;r &auml;r mallen som byggs innan &auml;rendet skickas vidare till Rubin
+              Medical.
+            </p>
           </div>
 
           <div id="previewList" class="preview-list"></div>
@@ -206,6 +285,30 @@
           </div>
         </section>
       </main>
+
+      <footer class="panel manual-panel">
+        <div class="panel-heading">
+          <h2>Manuell reservv&auml;g</h2>
+          <p>
+            Om automatiken inte kommer fram kan du &ouml;ppna reklamationssidan
+            manuellt h&auml;rifr&aring;n.
+          </p>
+        </div>
+
+        <div class="manual-actions">
+          <button id="openRubinBottomBtn" type="button" class="secondary">
+            &Ouml;ppna reklamationssidan manuellt
+          </button>
+          <a
+            class="manual-link"
+            href="https://rubinmedical.lime-forms.se/forms/nlCvHsnLaU7h4thf4stN"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://rubinmedical.lime-forms.se/forms/nlCvHsnLaU7h4thf4stN
+          </a>
+        </div>
+      </footer>
     </div>
 
     <template id="previewItemTemplate">
@@ -215,6 +318,7 @@
       </div>
     </template>
 
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

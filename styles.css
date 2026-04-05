@@ -1,12 +1,16 @@
 :root {
   --bg: #f3efe7;
   --bg-accent: #e4ecf4;
-  --panel: rgba(255, 252, 247, 0.9);
+  --panel: rgba(255, 252, 247, 0.92);
   --panel-border: rgba(40, 60, 80, 0.12);
   --text: #1c2733;
   --muted: #5d6977;
   --brand: #0c7db8;
   --brand-deep: #0b5478;
+  --danger: #c63b2d;
+  --danger-soft: rgba(198, 59, 45, 0.1);
+  --ok: #1a8b53;
+  --ok-soft: rgba(26, 139, 83, 0.1);
   --shadow: 0 18px 40px rgba(20, 35, 52, 0.12);
   --radius-lg: 28px;
   --radius-md: 18px;
@@ -48,21 +52,28 @@ body {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   backdrop-filter: blur(10px);
-}
-
-.hero-copy,
-.hero-card,
-.panel {
   padding: 24px;
 }
 
 .hero-card {
   display: flex;
   flex-direction: column;
+  gap: 14px;
   justify-content: center;
   background:
     linear-gradient(150deg, rgba(12, 125, 184, 0.12), rgba(12, 125, 184, 0.03)),
     var(--panel);
+}
+
+.intake-panel {
+  border-color: rgba(198, 59, 45, 0.18);
+  background:
+    linear-gradient(180deg, rgba(198, 59, 45, 0.05), transparent 140px),
+    var(--panel);
+}
+
+.manual-panel {
+  margin-top: 20px;
 }
 
 .eyebrow {
@@ -75,9 +86,14 @@ body {
 }
 
 h1,
-h2 {
+h2,
+h3 {
   margin: 0;
   line-height: 1.05;
+}
+
+h1,
+h2 {
   font-family: Georgia, "Times New Roman", serif;
 }
 
@@ -90,9 +106,17 @@ h2 {
   font-size: 1.7rem;
 }
 
+h3 {
+  font-size: 1.05rem;
+}
+
 .hero-text,
 .panel-heading p,
-.hero-card-text {
+.hero-card-text,
+.hero-upload-note,
+.danger-note,
+.feedback-item,
+.parse-item {
   color: var(--muted);
   line-height: 1.55;
 }
@@ -103,7 +127,7 @@ h2 {
 }
 
 .hero-card-label {
-  margin: 0 0 10px;
+  margin: 0;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -111,9 +135,14 @@ h2 {
   color: var(--brand-deep);
 }
 
-.hero-card-text {
+.hero-card-text,
+.hero-upload-note {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: 1.02rem;
+}
+
+.quick-text-label textarea {
+  min-height: 130px;
 }
 
 .layout {
@@ -129,7 +158,9 @@ h2 {
   margin: 8px 0 0;
 }
 
-.form-grid {
+.form-grid,
+.intake-grid,
+.feedback-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
@@ -147,15 +178,18 @@ label {
   font-weight: 600;
 }
 
+textarea,
 input,
 select,
 button,
 .import-button span,
-.uploader span {
+.uploader span,
+.manual-link {
   border-radius: var(--radius-sm);
   font: inherit;
 }
 
+textarea,
 input,
 select {
   width: 100%;
@@ -165,13 +199,41 @@ select {
   color: var(--text);
 }
 
+textarea {
+  resize: vertical;
+  min-height: 180px;
+}
+
+textarea:focus,
 input:focus,
 select:focus {
   outline: 3px solid rgba(12, 125, 184, 0.18);
   border-color: var(--brand);
 }
 
-.actions {
+.guide-card,
+.feedback-card {
+  padding: 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(28, 39, 51, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.guide-list {
+  margin: 12px 0 0;
+  padding-left: 18px;
+}
+
+.guide-list li + li {
+  margin-top: 8px;
+}
+
+.danger-note {
+  margin: 12px 0 0;
+}
+
+.actions,
+.manual-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
@@ -187,17 +249,24 @@ button,
   color: white;
   cursor: pointer;
   font-weight: 700;
-  transition: transform 140ms ease;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease;
 }
 
 button:hover,
 .import-button:hover span,
 .uploader:hover span {
   transform: translateY(-1px);
+  box-shadow: 0 10px 24px rgba(12, 125, 184, 0.18);
 }
 
 button.secondary {
   background: var(--brand-deep);
+}
+
+button.danger-button {
+  background: var(--danger);
 }
 
 .uploader,
@@ -206,6 +275,22 @@ button.secondary {
   display: inline-flex;
   overflow: hidden;
   border-radius: var(--radius-sm);
+}
+
+.wide-uploader {
+  width: 100%;
+}
+
+.wide-uploader span {
+  width: 100%;
+  text-align: center;
+}
+
+.primary-uploader span {
+  padding-block: 18px;
+  font-size: 1.02rem;
+  background:
+    linear-gradient(135deg, var(--danger), #df5747);
 }
 
 .uploader input,
@@ -220,9 +305,11 @@ button.secondary {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 14px;
+  margin-top: 18px;
 }
 
-.image-card {
+.image-card,
+.file-card {
   overflow: hidden;
   border-radius: var(--radius-md);
   border: 1px solid rgba(28, 39, 51, 0.1);
@@ -236,28 +323,66 @@ button.secondary {
   display: block;
 }
 
-.image-card-meta {
-  padding: 10px 12px 14px;
+.image-card-meta,
+.file-card-meta {
+  padding: 12px 14px 14px;
 }
 
-.image-card-meta strong {
+.image-card-meta strong,
+.file-card-meta strong {
   display: block;
   margin-bottom: 4px;
 }
 
+.file-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(12, 125, 184, 0.1);
+  color: var(--brand-deep);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.missing-list,
+.parse-notes,
 .preview-list {
   display: grid;
   gap: 12px;
+}
+
+.missing-item,
+.parse-item,
+.preview-item {
+  padding: 14px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(28, 39, 51, 0.08);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.missing-item {
+  background: var(--danger-soft);
+  border-color: rgba(198, 59, 45, 0.24);
+}
+
+.missing-item strong {
+  color: var(--danger);
+}
+
+.ok-item {
+  background: var(--ok-soft);
+  border-color: rgba(26, 139, 83, 0.24);
+  color: var(--ok);
+  font-weight: 700;
 }
 
 .preview-item {
   display: grid;
   grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.2fr);
   gap: 14px;
-  padding: 14px 16px;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(28, 39, 51, 0.08);
 }
 
 .preview-label {
@@ -270,9 +395,26 @@ button.secondary {
   word-break: break-word;
 }
 
+.manual-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 13px 16px;
+  border: 1px solid rgba(28, 39, 51, 0.12);
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--brand-deep);
+  text-decoration: none;
+  word-break: break-all;
+}
+
+.manual-link:hover {
+  border-color: rgba(12, 125, 184, 0.3);
+}
+
 @media (max-width: 860px) {
   .hero,
   .form-grid,
+  .intake-grid,
+  .feedback-grid,
   .preview-item {
     grid-template-columns: 1fr;
   }
